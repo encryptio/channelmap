@@ -177,8 +177,6 @@ int main(int argc, char **argv) {
         char *path;
         int channel;
 
-        fprintf(stderr, "parsing argument %d (%s)\n", i, argv[i]);
-
         parse_input_argument(argv[i], &path, &channel);
 
         if ( ! rate )
