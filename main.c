@@ -16,6 +16,8 @@ int getfilesamplerate(char *path) {
     SF_INFO info;
     SNDFILE *snd;
 
+    memset(&info, 0, sizeof(SF_INFO));
+
     if ( (snd = sf_open(path, SFM_READ, &info)) == NULL )
         diem("Couldn't open a sound file for reading", path);
 
@@ -43,6 +45,8 @@ inputfile * open_inputfile(char *path, int channel, int requiredsamplerate) {
 
     if ( (inf->info = malloc(sizeof(SF_INFO))) == NULL )
         die("Couldn't malloc space for an SF_INFO structure");
+
+    memset(inf->info, 0, sizeof(SF_INFO));
 
     if ( (inf->sf = sf_open(path, SFM_READ, inf->info)) == NULL )
         diem("Couldn't open input file for reading", path);
@@ -97,6 +101,8 @@ outputfile * open_outputfile(char *path, int inputcount, int samplerate) {
 
     if ( (of->info = malloc(sizeof(SF_INFO))) == NULL )
         die("Couldn't malloc space for SF_INFO structure");
+
+    memset(of->info, 0, sizeof(SF_INFO));
 
     of->info->samplerate = samplerate;
     of->info->channels   = inputcount;
