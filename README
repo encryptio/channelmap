@@ -1,0 +1,37 @@
+DESCRIPTION
+
+    channelmap is a UNIX-y program to assist in extraction and merging of audio
+    channels between audio files.
+
+BUILDING
+
+    channelmap requires libsndfile and SCons to build.
+
+    libsndfile is avaliable at <http://www.mega-nerd.com/libsndfile/>
+    SCons is avaliable at <http://www.scons.org/>
+
+    After the prerequisites are taken care of, building is simple:
+
+    $ cd channelmap
+    $ scons
+
+USAGE
+
+    Split two channels of an audio file:
+
+    $ channelmap left.wav stereo.wav:1
+    $ channelmap right.wav stereo.wav:2
+
+    Join two channels into a stereo audio file:
+
+    $ channelmap stereo.wav left.wav:1 right.wav:1
+
+LICENSE
+
+    channelmap itself is licensed under the BSD 3-clause license, readable in
+    the LICENSE file included with the source code. 
+
+    channelmap uses libsndfile, which is licensed under the Lesser GNU General
+    Public License. It is avaliable at <http://www.mega-nerd.com/libsndfile/>,
+    and was primarily written by Erik de Castro Lopo.
+
