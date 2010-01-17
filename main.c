@@ -87,7 +87,7 @@ int readblock(inputfile *inf) {
     int num = sf_readf_double(inf->sf, inf->readbuf, BUFFER_SIZE);
 
     for (int i = 0; i < num; i++)
-        inf->samples[i] = inf->readbuf[i*inf->info->channels];
+        inf->samples[i] = inf->readbuf[i*inf->info->channels + inf->channel-1];
 
     for (int i = num; i < BUFFER_SIZE; i++)
         inf->samples[i] = 0;
