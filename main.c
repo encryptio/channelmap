@@ -204,6 +204,8 @@ int main(int argc, char **argv) {
             rate = getfilesamplerate(path);
 
         input[i-2] = open_inputfile(path,channel,rate);
+
+        free(path);
     }
 
     char *outfn = argv[1];
