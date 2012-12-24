@@ -15,7 +15,7 @@
  *       permission.
  */
 
-#include <die.h>
+#include <err.h>
 #include <sndfile.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,12 +34,12 @@ int getfilesamplerate(char *path) {
     memset(&info, 0, sizeof(SF_INFO));
 
     if ( (snd = sf_open(path, SFM_READ, &info)) == NULL )
-        diem("Couldn't open a sound file for reading", path);
+        errx(1, "Couldn't open %s for reading", path);
 
     int ret = info.samplerate;
 
     if ( sf_close(snd) )
-        die("Couldn't close read file");
+        errx(1, "Couldn't close read file");
 
     return ret;
 }
@@ -56,29 +56,29 @@ inputfile * open_inputfile(char *path, int channel, int requiredsamplerate) {
     inputfile * inf;
 
     if ( (inf = malloc(sizeof(*inf))) == NULL )
-        die("Couldn't malloc space for an inputfile structure");
+        err(1, "Couldn't malloc space for an inputfile structure");
 
     if ( (inf->info = malloc(sizeof(SF_INFO))) == NULL )
-        die("Couldn't malloc space for an SF_INFO structure");
+        err(1, "Couldn't malloc space for an SF_INFO structure");
 
     memset(inf->info, 0, sizeof(SF_INFO));
 
     if ( (inf->sf = sf_open(path, SFM_READ, inf->info)) == NULL )
-        diem("Couldn't open input file for reading", path);
+        errx(1, "Couldn't open %s for reading", path);
 
     if ( channel > inf->info->channels )
-        diem("Can't use an input file, not enough channels.", path);
+        errx(1, "Can't use input file %s, not enough channels.", path);
 
     inf->channel = channel;
 
     if ( inf->info->samplerate != requiredsamplerate )
-        die("Sample rates of input files do not match");
+        errx(1, "Sample rates of input files do not match");
 
     if ( (inf->readbuf = malloc(sizeof(double) * inf->info->channels * BUFFER_SIZE)) == NULL )
-        die("Couldn't malloc space for input buffer");
+        errx(1, "Couldn't malloc space for input buffer");
 
     if ( (inf->samples = malloc(sizeof(double) * BUFFER_SIZE)) == NULL )
-        die("Couldn't malloc space for input buffer");
+        errx(1, "Couldn't malloc space for input buffer");
 
     return inf;
 }
@@ -112,10 +112,10 @@ outputfile * open_outputfile(char *path, int inputcount, int samplerate) {
     outputfile *of;
 
     if ( (of = malloc(sizeof(*of))) == NULL )
-        die("Couldn't malloc space for output file structure");
+        err(1, "Couldn't malloc space for output file structure");
 
     if ( (of->info = malloc(sizeof(SF_INFO))) == NULL )
-        die("Couldn't malloc space for SF_INFO structure");
+        err(1, "Couldn't malloc space for SF_INFO structure");
 
     memset(of->info, 0, sizeof(SF_INFO));
 
@@ -124,13 +124,13 @@ outputfile * open_outputfile(char *path, int inputcount, int samplerate) {
     of->info->format     = SF_FORMAT_WAV | SF_FORMAT_PCM_24 | SF_ENDIAN_FILE;
 
     if ( (of->sf = sf_open(path, SFM_WRITE, of->info)) == NULL )
-        diem("Couldn't open output file", path);
+        errx(1, "Couldn't open output file %s for writing", path);
 
     if ( (of->outbuf = malloc(sizeof(double) * inputcount * BUFFER_SIZE)) == NULL )
-        die("Couldn't malloc space for output buffer");
+        err(1, "Couldn't malloc space for output buffer");
 
     if ( (of->input = malloc(sizeof(inputfile*) * inputcount)) == NULL )
-        die("Couldn't malloc space for input buffer list");
+        err(1, "Couldn't malloc space for input buffer list");
 
     of->inputs = inputcount;
 
@@ -165,7 +165,7 @@ void mainloop(outputfile *of) {
 
 void parse_input_argument(char *in, char **path, int *channel) {
     if ( (*path = malloc(sizeof(char) * strlen(in))) == NULL )
-        die("Couldn't malloc space for input path argument");
+        err(1, "Couldn't malloc space for input path argument");
 
     int i = 0;
     while ( in[i] && in[i] != ':' ) {
@@ -174,12 +174,12 @@ void parse_input_argument(char *in, char **path, int *channel) {
     }
 
     if ( ! in[i] )
-        diem("Couldn't parse input argument, no channel found!", in);
+        errx(1, "Couldn't parse input argument '%s': no channel found!", in);
 
     *channel = atoi(in+i+1);
 
     if ( *channel < 1 )
-        diem("Couldn't parse input argument: bad channel spec", in);
+        errx(1, "Couldn't parse input argument '%s': bad channel spec", in);
 }
 
 int main(int argc, char **argv) {
@@ -187,10 +187,10 @@ int main(int argc, char **argv) {
     inputfile ** input;
 
     if ( inputs < 1 )
-        die("Need at least one input file");
+        errx(1, "Need at least one input file");
 
     if ( (input = malloc(sizeof(inputfile*) * inputs)) == NULL )
-        die("Couldn't malloc space for inputs structure");
+        err(1, "Couldn't malloc space for inputs structure");
 
     int rate = 0;
 
@@ -219,7 +219,7 @@ int main(int argc, char **argv) {
         sf_close(of->input[i]->sf);
 
     if ( sf_close(of->sf) )
-        diem("Couldn't close output file", sf_strerror(of->sf));
+        errx(1, "Couldn't close output file: %s", sf_strerror(of->sf));
 
     exit(0);
 }
