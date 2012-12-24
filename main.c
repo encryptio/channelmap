@@ -182,12 +182,20 @@ void parse_input_argument(char *in, char **path, int *channel) {
         errx(1, "Couldn't parse input argument '%s': bad channel spec", in);
 }
 
+void help(char *progname) {
+    fprintf(stderr, "Usage: %s input [input ...] output\n", progname);
+    fprintf(stderr, "  inputs: filename:channel, e.g. test.wav:2\n");
+    fprintf(stderr, "  output is a plain filename\n");
+}
+
 int main(int argc, char **argv) {
     int inputs = argc-2;
     inputfile ** input;
 
-    if ( inputs < 1 )
-        errx(1, "Need at least one input file");
+    if ( inputs < 1 ) {
+        help(argv[0]);
+        exit(1);
+    }
 
     if ( (input = malloc(sizeof(inputfile*) * inputs)) == NULL )
         err(1, "Couldn't malloc space for inputs structure");
